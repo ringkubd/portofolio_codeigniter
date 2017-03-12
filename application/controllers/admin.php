@@ -8,9 +8,11 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Admin extends CI_Controller{
+    public $message;
     public function Admin(){
         parent::__construct();
-        $this->load->model('admin_model');
+        $this->load->model('Admin_model');
+        $this->load->helper('Logcheck_helper');
 
         $seesion_loged_in   = $this->session->has_userdata('logged_in');
         $session_email      = $this->session->has_userdata('email');
@@ -53,8 +55,8 @@ class Admin extends CI_Controller{
                     'email'     => $email,
                     'password'  => $password
                 );
-                $this->load->model('admin_model');
-                $query = $this->admin_model->login($data);
+                $this->load->model('Admin_model');
+                $query = $this->Admin_model->login($data);
                 if($query){
                     $array = array(
                         'email'     => $email,
@@ -143,7 +145,7 @@ class Admin extends CI_Controller{
                         'intro_logo'    =>  $intro_logo,
                         'intro_desc'    =>  $intro_desc
                     );
-                    $update             = $this->admin_model->intro($data);
+                    $update             = $this->Admin_model->intro($data);
                     if($update){
                         $this->load->view('poto_admin/header');
                         $this->load->view('poto_admin/temp/intro',$data);
@@ -192,7 +194,7 @@ class Admin extends CI_Controller{
                         'published' =>  $published
 
                         );
-                    $query      = $this->admin_model->about_me($data);
+                    $query      = $this->Admin_model->about_me($data);
                     if($query){
                         $message['message'] = "Success";
                         $this->load->view('poto_admin/header');
@@ -209,7 +211,7 @@ class Admin extends CI_Controller{
         if($seesion_loged_in==FALSE || !isset($seesion_loged_in)){
             $this->load->view('poto_admin/login');
         } else {
-            $skill_show = $this->admin_model->skill_show();
+            $skill_show = $this->Admin_model->skill_show();
             $message['skills'] = $skill_show;
             
             $this->form_validation->set_rules('skill', 'Skill', 'required|trim');
@@ -229,7 +231,7 @@ class Admin extends CI_Controller{
                         
                 );
                     
-                $query = $this->admin_model->skills($data);
+                $query = $this->Admin_model->skills($data);
                 
                 if($query){
                         $message['message'] = "Success";
@@ -249,7 +251,7 @@ class Admin extends CI_Controller{
             $this->load->view('poto_admin/login');
         } else 
     {$id_no = array('skill_id' =>$id);
-        $query = $this->admin_model->skill_show_by_id($id_no);
+        $query = $this->Admin_model->skill_show_by_id($id_no);
         if($query){
             $data['editvalue'] = $query;
             $this->load->view('poto_admin/header');
@@ -288,7 +290,7 @@ class Admin extends CI_Controller{
                         
                 );
                     
-                $query = $this->admin_model->skill_update($data);
+                $query = $this->Admin_model->skill_update($data);
                 
                 if($query){
                     redirect('admin/skillss','refresh');
@@ -301,7 +303,7 @@ class Admin extends CI_Controller{
         $data = array(
             'skill_id' => $id
         );
-        $query = $this->admin_model->skill_delete($data);
+        $query = $this->Admin_model->skill_delete($data);
         if($query){
             redirect('admin/skillss','refresh');
         }
@@ -333,7 +335,7 @@ class Admin extends CI_Controller{
                     'service_details'   =>  $service_details,
                     'service_status'    =>  $published
                 );
-                $query = $this->admin_model->services($data);
+                $query = $this->Admin_model->services($data);
                 $message = "";
                 if($this->db->affected_rows()>0){
                     $message['message'] = "Sucess";
@@ -351,7 +353,33 @@ class Admin extends CI_Controller{
     }
     
     //my work
-    public function MY_work(){
-        $this->load->view();
+    public function mywork(){
+        Logcheck();
+            $show_result = $this->Admin_model->show_work_group();
+            if(isset($show_result)){
+                $message['data'] = $show_result;
+            }
+        
+        $this->form_validation->set_rules('group_name', 'Work Group Name', 'required|xss_clean',array('required'=>'Work Group Name Can not left Blank'));
+        if(!$this->form_validation->run()){
+            $this->load->view('poto_admin/header');
+            $this->load->view('poto_admin/temp/work_group',$message);
+            $this->load->view('poto_admin/footer');
+        }else{
+            $work_group_name = $this->input->post('group_name');
+            $data = array(
+                'work_group_name' => $work_group_name
+            );
+            $query = $this->Admin_model->add_work_group($data);
+            if($query){
+                $message['message'] = "Sucess";
+                $this->load->view('poto_admin/header');
+                $this->load->view('poto_admin/temp/work_group',$message);
+                $this->load->view('poto_admin/footer');
+            }
+            
+        }
     }
+    
+    //show and edit mywork
 }

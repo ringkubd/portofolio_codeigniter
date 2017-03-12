@@ -155,3 +155,8 @@ table,thead,tr,tbody,th,td {
     .navbar-inverse{
         background-color: #4CAF50 !important;
     }
+    @media(max-width:768px){
+        #content{
+            margin-top: 23vh;
+        }
+    }

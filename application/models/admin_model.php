@@ -90,4 +90,23 @@ class admin_model extends CI_Model{
             return TRUE;
         }
     }
+    
+    //add work group
+    public function add_work_group($data){
+        $this->db->insert('workgroup',$data);
+        if($this->db->affected_rows()>0){
+            return TRUE;
+        } else {
+            return FALSE;
+        }
+    }
+    //show work
+    public function show_work_group(){
+        $query = $this->db->get('workgroup');
+        if($query->num_rows()>0){
+            return $query->result();
+        } else {
+            return FALSE;
+        }
+    }
 }
